@@ -1,0 +1,28 @@
+(()=>{"use strict";
+const source=window.HISTORICO_OUTUBRO||[];
+const days=source.map(([day,week,s])=>({day,week,times:s?s.trim().split(/\s+/):[],get count(){return this.times.length}}));
+const $=id=>document.getElementById(id);
+const el=(tag,cls,txt)=>{const x=document.createElement(tag);if(cls)x.className=cls;if(txt!==undefined)x.textContent=txt;return x};
+const all=days.flatMap(d=>d.times.map(t=>({date:`2026-10-${d.day}`,time:t})));
+const peak=days.reduce((a,b)=>b.count>a.count?b:a,days[0]);
+const set=(id,v)=>{if($(id))$(id).textContent=v};
+set("totalRecords",all.length);set("daysWithData",days.filter(d=>d.count).length+"/20");set("peakCount",peak.count);set("peakDay",peak.day+"/10/2026");set("nightCount",all.filter(x=>Number(x.time.slice(0,2))<6).length);
+set("yTop",peak.count);set("yMid",Math.round(peak.count/2));
+let current=0;
+function openDay(i){current=i;const d=days[i];set("detailNumber",d.day);set("detailTitle",d.week+", "+d.day+" de outubro");set("detailBadge",d.count+" registros");set("detailFirst",d.times[0]||"—");set("detailLast",d.times.at(-1)||"—");const host=$("detailTimes");host.replaceChildren();if(!d.count)host.append(el("p","","Nenhum horário recuperado."));for(let h=0;h<24;h+=4){const group=d.times.filter(t=>Number(t.slice(0,2))>=h&&Number(t.slice(0,2))<h+4);if(!group.length)continue;const section=el("section","time-group");section.append(el("h3","",String(h).padStart(2,"0")+"h - "+String(h+4).padStart(2,"0")+"h"));const wrap=el("div","time-grid");group.forEach(t=>wrap.append(el("span","time-chip",t)));section.append(wrap);host.append(section)}$("previousDay").disabled=i===0;$("nextDay").disabled=i===days.length-1;$("dayDialog").showModal()}
+function addButton(host,cls,text,i){const b=el("button",cls,text);b.type="button";b.addEventListener("click",()=>openDay(i));host.append(b);return b}
+days.forEach((d,i)=>{const b=addButton($("dailyChart"),"bar-day"+(!d.count?" zero":""),"",i);b.title=d.day+"/10: "+d.count+" horários";b.style.setProperty("--bar-height",(d.count/Math.max(peak.count,1)*165)+"px");b.append(el("span","bar-value",d.count),el("span","bar-column"),el("span","bar-label",d.day))});
+for(let i=0;i<4;i++)$("calendar").append(el("span","calendar-cell placeholder"));
+days.forEach((d,i)=>{const level=d.count===0?0:d.count<10?1:d.count<20?2:d.count<35?3:4;const b=addButton($("calendar"),"calendar-cell intensity-"+level,"",i);b.append(el("span","calendar-day",d.day),el("span","calendar-count",d.count+" reg."))});
+for(let i=21;i<=31;i++)$("calendar").append(el("span","calendar-cell placeholder"));
+const periods=[["Madrugada","00h - 05h59",0,6],["Manhã","06h - 11h59",6,12],["Tarde","12h - 17h59",12,18],["Noite","18h - 23h59",18,24]];
+periods.forEach(([name,hours,a,b])=>{const n=all.filter(x=>Number(x.time.slice(0,2))>=a&&Number(x.time.slice(0,2))<b).length;const row=el("div","period-row");const meta=el("div","period-meta");const label=el("span","period-name",name);label.append(el("span","period-hours",hours));meta.append(label,el("span","period-value",n+" · "+(all.length?Math.round(n/all.length*100):0)+"%"));const line=el("div","period-line");const fill=el("div","period-fill");fill.style.setProperty("--fill",(all.length?n/all.length*100:0)+"%");line.append(fill);row.append(meta,line);$("periodRows").append(row)});
+days.forEach((d,i)=>{const b=addButton($("timelineList"),"timeline-row","",i);const date=el("span","timeline-date",d.day+"/10");const bar=el("span","timeline-bar");const fill=el("span","timeline-bar-fill");fill.style.width=(d.count/Math.max(peak.count,1)*100)+"%";bar.append(fill);b.append(date,bar,el("span","timeline-count",d.count+" horários"),el("span","timeline-arrow","›"))});
+const heat=$("timelineHeat");days.forEach((d,i)=>{const row=el("div","heat-row");const label=addButton(row,"heat-date",d.day+"/10",i);label.title=d.week;for(let h=0;h<24;h++){const n=d.times.filter(t=>Number(t.slice(0,2))===h).length;const b=addButton(row,"heat-cell intensity-"+(n===0?0:n<3?1:n<8?2:n<15?3:4),"",i);b.title=d.day+"/10 "+String(h).padStart(2,"0")+"h: "+n+" registros";b.setAttribute("aria-label",b.title)}heat.append(row)});
+function toggle(mode){const heatMode=mode==="heat";$("timelineHeat").hidden=!heatMode;$("timelineList").hidden=heatMode;$("listToggle").classList.toggle("active",!heatMode);$("heatToggle").classList.toggle("active",heatMode);$("listToggle").setAttribute("aria-pressed",String(!heatMode));$("heatToggle").setAttribute("aria-pressed",String(heatMode))}
+$("listToggle").onclick=()=>toggle("list");$("heatToggle").onclick=()=>toggle("heat");
+$("closeDialog").onclick=()=>$("dayDialog").close();$("previousDay").onclick=()=>openDay(current-1);$("nextDay").onclick=()=>openDay(current+1);
+function download(rows,name){const csv="\uFEFF"+rows.map(r=>r.map(v=>'"'+String(v).replaceAll('"','""')+'"').join(";")).join("\r\n");const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([csv],{type:"text/csv;charset=utf-8"}));a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)}
+$("downloadAll").onclick=()=>download([["Data","Dia da semana","Horário (Brasília)"],...days.flatMap(d=>d.times.length?d.times.map(t=>[d.day+"/10/2026",d.week,t]):[[d.day+"/10/2026",d.week,""]])],"historico-outubro-2026.csv");
+const dayExport=$("downloadDay");if(dayExport)dayExport.onclick=()=>{const d=days[current];download([["Data","Horário"],...d.times.map(t=>[d.day+"/10/2026",t])],"historico-"+d.day+"-outubro.csv")};
+})();
