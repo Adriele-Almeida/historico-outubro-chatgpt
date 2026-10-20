@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f5f2ec">
+  <meta name="description" content="Painel interativo do histórico de interações de outubro de 2026, com visão macro e detalhamento por data.">
+  <title>Histórico de Outubro | Painel de Interações</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <script defer src="data.js"></script>
+  <script defer src="app.js"></script>
+</head>
+<body>
+  <div class="shell">
+    <aside class="sidebar" aria-label="Identificação">
+      <div class="brand"><span class="brand-emblem" aria-hidden="true">H<span>.</span></span><span class="brand-name">HISTÓRICO<br><small>OUTUBRO 2026</small></span></div>
+      <div class="side-rule"></div>
+      <span class="side-label">PERÍODO ANALISADO</span>
+      <div class="side-period">01 <span>—</span> 20<br><small>OUTUBRO / 2026</small></div>
+      <div class="side-bottom">
+        <span class="side-label">REFERÊNCIA</span>
+        <p>Horário de Brasília<br><strong>UTC−03:00</strong></p>
+        <p>Base transcrita da conversa. Cobertura parcial.</p>
+      </div>
+    </aside>
+    <main id="principal">
+      <header class="topbar">
+        <div class="breadcrumb">ANÁLISE DE INTERAÇÕES <span>/</span> OUTUBRO</div>
+        <button class="button button-secondary button-small" id="downloadAll" type="button" aria-label="Exportar registros em CSV">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M12 3v12m0 0 4-4m-4 4-4-4M4 17v3h16v-3"/></svg>
+          Exportar CSV
+        </button>
+      </header>
+      <div class="content">
+        <section class="intro" aria-labelledby="mainTitle">
+          <div class="eyebrow"><span class="eyebrow-line"></span> VISÃO GERAL <span class="eyebrow-dot">·</span> 2026</div>
+          <h1 id="mainTitle">Outubro, <em>em perspectiva.</em></h1>
+          <p>Uma visão cronológica dos horários de interação listados entre 1º e 20 de outubro. Selecione um dia para consultar os detalhes.</p>
+        </section>
+        <section aria-label="Indicadores principais" class="metrics">
+          <article class="metric"><span class="metric-label">HORÁRIOS LISTADOS</span><strong class="metric-number" id="totalRecords">—</strong><span class="metric-sub">Registros individuais na base</span><span class="metric-index">01</span></article>
+          <article class="metric"><span class="metric-label">DIAS COM REGISTROS</span><strong class="metric-number" id="daysWithData">—</strong><span class="metric-sub">De 20 dias consultados</span><span class="metric-index">02</span></article>
+          <article class="metric"><span class="metric-label">MAIOR VOLUME DIÁRIO</span><strong class="metric-number" id="peakCount">—</strong><span class="metric-sub" id="peakDay">—</span><span class="metric-index">03</span></article>
+          <article class="metric"><span class="metric-label">ENTRE 00H E 05H59</span><strong class="metric-number" id="nightCount">—</strong><span class="metric-sub">Horários registrados na madrugada</span><span class="metric-index">04</span></article>
+        </section>
+        <section class="panel panel-chart" aria-labelledby="activityTitle">
+          <div class="panel-header">
+            <div><div class="panel-kicker">01 / ATIVIDADE DIÁRIA</div><h2 id="activityTitle">Distribuição por data</h2><p>Quantidade de horários listados em cada dia do período.</p></div>
+            <div class="chart-legend"><span class="legend-swatch"></span> Registros encontrados</div>
+          </div>
+          <div class="chart-wrap">
+            <div class="chart-y" aria-hidden="true"><span id="yTop">—</span><span id="yMid">—</span><span>0</span></div>
+            <div class="bar-plot" id="dailyChart" role="group" aria-label="Gráfico interativo com registros por dia"></div>
+          </div>
+          <div class="chart-footnote">Toque em qualquer coluna para abrir os horários daquele dia.</div>
+        </section>
+        <div class="two-column">
+          <section class="panel panel-calendar" aria-labelledby="calendarTitle">
+            <div class="panel-header">
+              <div><div class="panel-kicker">02 / MAPA DO MÊS</div><h2 id="calendarTitle">Calendário de registros</h2><p>Quanto mais intensa a cor, maior a quantidade de horários listados.</p></div>
+              <span class="pill">OUT 2026</span>
+            </div>
+            <div class="weekday-head" aria-hidden="true"><span>DOM</span><span>SEG</span><span>TER</span><span>QUA</span><span>QUI</span><span>SEX</span><span>SÁB</span></div>
+            <div class="calendar" id="calendar" role="group" aria-label="Calendário interativo de outubro"></div>
+            <div class="calendar-key"><span>MENOS</span><span class="key-box intensity-0"></span><span class="key-box intensity-1"></span><span class="key-box intensity-2"></span><span class="key-box intensity-3"></span><span class="key-box intensity-4"></span><span>MAIS</span></div>
+          </section>
+          <section class="panel panel-periods" aria-labelledby="periodTitle">
+            <div class="panel-header">
+              <div><div class="panel-kicker">03 / DISTRIBUIÇÃO HORÁRIA</div><h2 id="periodTitle">Em que horários?</h2><p>Participação dos horários por faixa do dia.</p></div>
+            </div>
+            <div id="periodRows" class="period-rows"></div>
+            <div class="period-footer">Cada horário listado é contado uma vez. Os intervalos entre registros não representam tempo de trabalho.</div>
+          </section>
+        </div>
+        <section class="panel panel-timeline" aria-labelledby="timelineTitle">
+          <div class="panel-header timeline-heading">
+            <div><div class="panel-kicker">04 / LINHA DO TEMPO</div><h2 id="timelineTitle">Dia a dia</h2><p>Sequência cronológica, do dia 1 ao dia 20.</p></div>
+            <div class="display-switch" role="group" aria-label="Tipo de visualização">
+              <button type="button" class="switch-option active" id="listToggle" aria-pressed="true">Lista</button>
+              <button type="button" class="switch-option" id="heatToggle" aria-pressed="false">Mapa 24h</button>
+            </div>
+          </div>
+          <div id="timelineList" class="timeline-list"></div>
+          <div id="timelineHeat" class="timeline-heat" hidden></div>
+          <div class="panel-bottom">Todos os horários são apresentados no padrão de Brasília (UTC−03:00). Datas sem resultado permanecem sinalizadas como lacunas.</div>
+        </section>
+        <section class="source-note" aria-label="Observação sobre os dados">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7h.01"/></svg>
+          <div><strong>Sobre a origem dos registros</strong><p>Esta visualização reproduz os 433 horários anteriormente apresentados nesta conversa. Esses dados ainda não foram verificados individualmente contra os metadados originais das mensagens. A ausência de horários em um dia não comprova ausência de atividade.</p></div>
+        </section>
+        <footer>HISTÓRICO DE INTERAÇÕES <span>·</span> OUTUBRO 2026 <span>·</span> ADRIELE ALMEIDA</footer>
+      </div>
+    </main>
+  </div>
+  <dialog class="day-dialog" id="dayDialog" aria-labelledby="detailTitle">
+    <div class="dialog-layout">
+      <header class="dialog-top">
+        <span class="dialog-kicker">DETALHAMENTO / OUTUBRO 2026</span>
+        <button class="icon-button" type="button" id="closeDialog" aria-label="Fechar detalhes">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M5 5l14 14M19 5L5 19"/></svg>
+        </button>
+      </header>
+      <div class="dialog-scroll">
+        <div class="dialog-heading">
+          <div><div class="dialog-date-number" id="detailNumber">—</div><h2 id="detailTitle">—</h2></div>
+          <span class="dialog-badge" id="detailBadge">—</span>
+        </div>
+        <div class="detail-kpis"><div><span>PRIMEIRO HORÁRIO</span><strong id="detailFirst">—</strong></div><div><span>ÚLTIMO HORÁRIO</span><strong id="detailLast">—</strong></div></div>
+        <p class="detail-help">Horários individuais listados em ordem cronológica (HH:MM:SS).</p>
+        <div id="detailTimes" class="detail-times"></div>
+      </div>
+      <div class="dialog-actions">
+        <button type="button" class="button button-secondary" id="previousDay">← Dia anterior</button>
+        <button type="button" class="button button-secondary" id="nextDay">Próximo dia →</button>
+        <button type="button" class="button button-main" id="copyDay">Copiar horários</button>
+      </div>
+    </div>
+  </dialog>
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+</body>
+</html>
